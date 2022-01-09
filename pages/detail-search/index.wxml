@@ -1,0 +1,22 @@
+<!--pages/detail-search/index.wxml-->
+<van-search background="#f7f7f7" shape="round" bind:change="handleSearchChange" value="{{searchValue}}"></van-search>
+<view wx:if="{{!searchValue.length && !suggestSongs.length}}" class="hot">
+  <area-header title="热门搜索" showRight="{{false}}"></area-header>
+  <view class="list">
+    <block wx:for="{{hotKeyWords}}" wx:key="first">
+      <view class="tag">{{item.first}}</view>
+    </block>
+  </view>
+</view>
+
+<view class="suggest" wx:else>
+  <view class="title">搜索"{{searchValue}}"</view>
+  <view class="list">
+    <block wx:for="{{suggestSongs}}" wx:key="keyword">
+      <view class="item">
+        <image class="icon" mode="widthFix" src="/assets/images/icons/search_icon.png"></image>
+        <text class="text">{{item.keyword}}</text>
+      </view>
+    </block>
+  </view>
+</view>

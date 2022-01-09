@@ -1,0 +1,23 @@
+{
+  "name": "miniprogram",
+  "version": "1.0.0",
+  "description": "基于网易云api的音乐小程序",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fate-ui/-.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Fate-ui/-/issues"
+  },
+  "homepage": "https://github.com/Fate-ui/-#readme",
+  "dependencies": {
+    "@vant/weapp": "^1.10.0",
+    "hy-event-store": "^1.1.1"
+  }
+}
