@@ -1,6 +1,7 @@
 /* pages/detail-search/index.wxss */
 page {
   padding: 0 20rpx;
+  padding-top: 56px;
 }
 
 /* 热门搜索 */
@@ -52,4 +53,14 @@ page {
   font-size: 28rpx;
 }
 
+.result .title {
+  font-size: 32rpx;
+  color: #26ce8a;
+}
 
+.search {
+  position: fixed;
+  top: 0;
+  left: 20rpx;
+  right: 20rpx;
+}

@@ -1,5 +1,9 @@
 // pages/detail-search/index.js
-import { getSearchHot, getSearchSuggest } from '../../service/api_search'
+import { getSearchHot, getSearchSuggest, getSearchResult } from '../../service/api_search'
+import debounce from '../../utils/debounce'
+import { stringToNodes } from '../../utils/string-to-nodes'
+
+const debounceGetSearchSuggest = debounce(getSearchSuggest)
 Page({
 
   /**
@@ -8,6 +12,8 @@ Page({
   data: {
     hotKeyWords: [],
     suggestSongs: [],
+    suggestSongsNodes: [],
+    resultSongs: [],
     searchValue: ''
   },
 
@@ -28,11 +34,41 @@ Page({
     this.setData({ searchValue })
     if (!searchValue.length) {
       this.setData({ suggestSongs: [] })
+      this.setData({ resultSongs: [] })
+      debounceGetSearchSuggest.cancel()
       return
     }
-    getSearchSuggest(searchValue).then(res => {
-      this.setData({ suggestSongs: res.result.allMatch })
+    debounceGetSearchSuggest(searchValue).then(res => {
+      const suggestSongs = res.result.allMatch
+      this.setData({ suggestSongs })
+      if (!suggestSongs) return
+
+      //转nodes节点
+      const suggestKeywords = suggestSongs.map(item => item.keyword)
+      const suggestSongsNodes = []
+      for (const keyword of suggestKeywords) {
+        const nodes = stringToNodes(keyword, searchValue)
+        suggestSongsNodes.push(nodes)
+      }
+      this.setData({ suggestSongsNodes })
     })
+  },
+  handleSearchAction() {
+    const searchValue = this.data.searchValue
+    getSearchResult(searchValue).then(res => {
+      this.setData({ resultSongs: res.result.songs })
+    })
+  },
+  handleSuggestItemClick(event) {
+    const index = event.currentTarget.dataset.index
+    const keyword = this.data.suggestSongs[index].keyword
+    this.setData({ searchValue: keyword })
+    this.handleSearchAction()
+  },
+  handleTagItemClick(event) {
+    const keyword = event.currentTarget.dataset.keyword
+    this.setData({ searchValue: keyword })
+    this.handleSearchAction()
   },
   /**
    * 生命周期函数--监听页面初次渲染完成

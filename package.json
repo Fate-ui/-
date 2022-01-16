@@ -18,6 +18,6 @@
   "homepage": "https://github.com/Fate-ui/-#readme",
   "dependencies": {
     "@vant/weapp": "^1.10.0",
-    "hy-event-store": "^1.1.1"
+    "hy-event-store": "^1.2.0"
   }
 }
