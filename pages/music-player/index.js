@@ -1,6 +1,7 @@
 // pages/music-player/index.js
 import { audioContext, playerStore } from '../../store/index'
 
+const playModeNames = ['order', 'repeat', 'random']
 Page({
 
   /**
@@ -19,7 +20,11 @@ Page({
     currentTime: 0,
     sliderValue: 0,
     isSliderChanging: false,
-    lyricScrollTop: 0
+    lyricScrollTop: 0,
+    playModeIndex: 0,
+    playModeName: 'order',
+    isPlaying: false,
+    playingName: 'pause'
   },
 
   /**
@@ -39,39 +44,12 @@ Page({
     const contentHeight = screenHeight - statusBarHeight - navBarHeight
     const deviceRadio = globalData.deviceRadio
     this.setData({ contentHeight, isMusicLyric: deviceRadio >= 2 })
-    //创建播放器
-    audioContext.stop()
-    audioContext.src = `https://music.163.com/song/media/outer/url?id=${id}.mp3`
-    // audioContext.autoplay = true
-    this.setupAudioContextListener()
+    //audioContext事件监听
+    // this.setupAudioContextListener()
   },
   
 
-  //事件监听
-  setupAudioContextListener() {
-    audioContext.onCanplay(() => {
-      // audioContext.play()
-    })
-    audioContext.onTimeUpdate(() => {
-      if (this.data.isSliderChanging) return
-      const currentTime = audioContext.currentTime * 1000
-      const sliderValue = currentTime / this.data.durationTime * 100
-      this.setData({ sliderValue, currentTime })
-      let i
-      for (i = 0; i < this.data.lyricInfos.length; i++) {
-        const lyricInfo = this.data.lyricInfos[i]
-        if (currentTime < lyricInfo.time) {
-          break
-        }
-      }
-      const currentLyricIndex = i - 1
-      if (!this.data.lyricInfos.length) return
-      if (this.data.currentLyricIndex == currentLyricIndex) return
-      const currentLyricText = this.data.lyricInfos[currentLyricIndex].text
-      const lyricScrollTop = currentLyricIndex * 35
-      this.setData({ currentLyricText, currentLyricIndex, lyricScrollTop  })
-    })
-  },
+ 
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
@@ -95,15 +73,60 @@ Page({
   handleSliderChanging(event) {
     const value = event.detail.value
     const currentTime = audioContext.currentTime * 1000
-    this.setData({ isSliderChanging: true, currentTime, sliderValue: value })
+    this.setData({ isSliderChanging: true, currentTime })
   },
 
   setupPlayerStoreListener() {
-    playerStore.onStates(['currentSong', 'duration', 'lyricInfos'], ({ currentSong, duration, lyricInfos }) => {
+    playerStore.onStates(['currentSong', 'durationTime', 'lyricInfos'], ({ currentSong, durationTime, lyricInfos }) => {
       if (currentSong) this.setData({ currentSong })
-      if (duration) this.setData({ duration })
+      if (durationTime) this.setData({ durationTime })
       if (lyricInfos) this.setData({ lyricInfos })
     })
+
+    playerStore.onStates(['currentTime', 'currentLyricIndex', 'currentLyricText'], ({ currentTime, currentLyricIndex, currentLyricText }) => {
+      //时间变化
+      if (currentTime && !this.data.isSliderChanging) {
+        const sliderValue = currentTime / this.data.durationTime * 100
+        this.setData({ currentTime, sliderValue })
+      }
+
+      //歌词变化
+      if (currentLyricIndex) {
+        this.setData({ currentLyricIndex, lyricScrollTop: currentLyricIndex * 35 })
+      }
+      if (currentLyricText) {
+        this.setData({ currentLyricText })
+      }
+    })
+
+
+    playerStore.onStates(['playModeIndex', 'isPlaying'], ({playModeIndex, isPlaying}) => {
+      if (playModeIndex !== undefined) this.setData({ playModeIndex: playModeIndex, playModeName: playModeNames[playModeIndex] })
+      if (isPlaying !== undefined) this.setData({ isPlaying, playingName: isPlaying ? 'pause' : 'resume' })
+    })
+  },
+
+  handleBackClick() {
+    wx.navigateBack()
+  },
+
+  handleModeBtnClick() {
+    let playModeIndex = this.data.playModeIndex + 1
+    if (playModeIndex === 3) playModeIndex = 0
+
+    playerStore.setState('playModeIndex', playModeIndex)
+  },
+
+  handlePlayBtnClick() {
+    playerStore.dispatch('changeMusicPlayStatusAction', !this.data.isPlaying)
+  },
+
+  handlePrevBtnClick() {
+    playerStore.dispatch('changeNewMusicAction', false)
+  },
+
+  handleNextvBtnClick() {
+    playerStore.dispatch('changeNewMusicAction')
   },
 
   /**

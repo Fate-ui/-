@@ -4,7 +4,7 @@
 <image class="bg-image" mode="widthFix" src="{{currentSong.al.picUrl}}"></image>
 <view class="bg-cover"></view>
 <!-- 导航 -->
-<nav-bar>
+<nav-bar bind:click="handleBackClick">
   <view slot="title" class="tab">
     <view class="{{currentPage === 0 ? 'active' : ''}}">歌曲</view>
     <view class="divider"> | </view>
@@ -33,10 +33,10 @@
       </view>
     </view>
     <view class="operation">
-      <image class="btn-mode btn" src="/assets/images/player/play_order.png"></image>
-      <image class="btn-prev btn" src="/assets/images/player/play_prev.png"></image>
-      <image class="btn-pause btn" src="/assets/images/player/play_pause.png"></image>
-      <image class="btn-next btn" src="/assets/images/player/play_next.png"></image>
+      <image bindtap="handleModeBtnClick" class="btn-mode btn" src="/assets/images/player/play_{{playModeName}}.png"></image>
+      <image bindtap="handlePrevBtnClick" class="btn-prev btn" src="/assets/images/player/play_prev.png"></image>
+      <image bindtap="handlePlayBtnClick" class="btn-pause btn" src="/assets/images/player/play_{{playingName}}.png"></image>
+      <image bindtap="handleNextvBtnClick" class="btn-next btn" src="/assets/images/player/play_next.png"></image>
       <image class="btn-music btn" src="/assets/images/player/play_music.png"></image>
     </view>
   </swiper-item>
